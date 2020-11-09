@@ -8,6 +8,17 @@ use Closure;
 
 class ParseDates
 {
+    private function parseOrNow($date)
+    {
+        try {
+            $date = Carbon::parse($date);
+        } catch (InvalidFormatException $e) {
+            $date = Carbon::now();
+        }
+
+        return $date;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -17,17 +28,8 @@ class ParseDates
      */
     public function handle(&$request, Closure $next)
     {
-        try {
-            $start = Carbon::parse($request->startDateTime);
-        } catch (InvalidFormatException $e) {
-            $start = Carbon::now();
-        }
-
-        try {
-            $end = Carbon::parse($request->endDateTime);
-        } catch (InvalidFormatException $e) {
-            $end = Carbon::now();
-        }
+        $start = $this->parseOrNow($request->startDateTime);
+        $end = $this->parseOrNow($request->endDateTime);
 
         $request->route()->setParameter(
             "startDateTime",
@@ -38,7 +40,7 @@ class ParseDates
             "endDateTime",
             $end->format("Y-m-d h:i:s")
         );
-        
+
         return $next($request);
     }
 }
