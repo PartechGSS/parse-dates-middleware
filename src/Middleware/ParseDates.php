@@ -5,17 +5,10 @@ namespace PartechGSS\ParseDates\Middleware;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
 use Closure;
-use Illuminate\Support\Facades\Config;
 
 class ParseDates
 {
-    private $defaults;
     public $errors = [];
-
-    public function __construct()
-    {
-        $this->defaults = Config::get("dates.defaults", []);
-    }
 
     private function parse($date, $field)
     {
@@ -28,10 +21,10 @@ class ParseDates
         return $date;
     }
 
-    private function getDefault($uri, $date, $field)
+    private function getDefault($date, $default, $field)
     {
-        if (isset($this->defaults[$uri][$field], $this->errors[$field])) {
-            $date = $this->parse($this->defaults[$uri][$field], $field);
+        if (isset($this->errors[$field]) && $default !== null) {
+            $date = $this->parse($default, $field);
             unset($this->errors[$field]);
         }
 
@@ -45,13 +38,12 @@ class ParseDates
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle(&$request, Closure $next)
+    public function handle($request, Closure $next, $startDefault = null, $endDefault = null)
     {
         $start = $this->parse($request->startDateTime, "startDateTime");
+        $start = $this->getDefault($start, $startDefault, "startDateTime");
         $end = $this->parse($request->endDateTime, "endDateTime");
-
-        $start = $this->getDefault($request->route()->uri(), $start, "startDateTime");
-        $end = $this->getDefault($request->route()->uri(), $end, "endDateTime");
+        $end = $this->getDefault($end, $endDefault, "endDateTime");
 
         if (count($this->errors) > 0) {
             abort(422, json_encode(["errors" => $this->errors]));

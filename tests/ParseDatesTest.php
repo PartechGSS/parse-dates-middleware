@@ -52,13 +52,6 @@ class ParseDatesTest extends \Orchestra\Testbench\TestCase
 
     public function testOverridesWork()
     {
-        config()->set('dates.defaults', [
-            '/fleet/v1/assets/management/rented/dtcs/{startDateTime}/{endDateTime}' => [
-                'startDateTime' => 'yesterday',
-                'endDateTime' => 'now',
-            ],
-        ]);
-
         $yesterday = Carbon::parse("yesterday")->format("Y-m-d h:i:s");
         $now = Carbon::now()->format("Y-m-d h:i:s");
         $request = $this->getRequest("/fleet/v1/assets/management/rented/dtcs/basjdhkasdsua/asdasdsad");
@@ -67,6 +60,6 @@ class ParseDatesTest extends \Orchestra\Testbench\TestCase
         $middleware->handle($request, function ($req) use ($yesterday, $now) {
             $this->assertEquals($yesterday, $req->startDateTime);
             $this->assertEquals($now, $req->endDateTime);
-        });
+        }, "yesterday", "now");
     }
 }
