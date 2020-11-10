@@ -36,6 +36,8 @@ class ParseDates
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
+     * @param string|null $startDefault
+     * @param string|null $endDefault
      * @return mixed
      */
     public function handle($request, Closure $next, $startDefault = null, $endDefault = null)
