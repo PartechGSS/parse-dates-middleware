@@ -1,0 +1,23 @@
+{
+    "name": "partechgss/parse-dates-middleware",
+    "description": "Laravel middleware to parse date slugs.",
+    "type": "library",
+    "license": "BSD-3-Clause-Clear",
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "PartechGSS\\ParseDates\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^7.4",
+        "laravel/framework": "^6.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.2",
+        "orchestra/testbench": "4.6.0"
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}
