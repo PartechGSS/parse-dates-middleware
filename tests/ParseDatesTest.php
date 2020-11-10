@@ -31,7 +31,7 @@ class ParseDatesTest extends \Orchestra\Testbench\TestCase
         $last_week = Carbon::parse("last week")->format("Y-m-d h:i:s");
         $yesterday = Carbon::parse("yesterday")->format("Y-m-d h:i:s");
 
-        $request = $this->getRequest("/fleet/v1/assets/management/rented/dtcs/last%20week/yesterday");
+        $request = $this->getRequest("/fleet/v1/assets/management/rented/dtcs/last%20week/$yesterday");
         $middleware = new ParseDates;
 
         $middleware->handle($request, function ($req) use ($last_week, $yesterday) {
