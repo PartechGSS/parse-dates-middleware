@@ -6,8 +6,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use PartechGSS\ParseDates\Middleware\ParseDates;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ParseDatesTest extends \PHPUnit\Framework\TestCase
+class ParseDatesTest extends \Orchestra\Testbench\TestCase
 {
     public $route = "/fleet/v1/assets/management/rented/dtcs/{startDateTime}/{endDateTime}";
 
@@ -39,17 +40,33 @@ class ParseDatesTest extends \PHPUnit\Framework\TestCase
         });
     }
 
-    public function testInvalidDateDefaultsToNow()
+    public function testInvalidDateThrowsException()
     {
-        $last_week = Carbon::parse("last week")->format("Y-m-d h:i:s");
-        $now = Carbon::now()->format("Y-m-d h:i:s");
+        $this->expectException(HttpException::class);
 
         $request = $this->getRequest("/fleet/v1/assets/management/rented/dtcs/last%20week/asdasdsad");
         $middleware = new ParseDates;
 
-        $middleware->handle($request, function ($req) use ($last_week, $now) {
-            $this->assertEquals($last_week, $req->startDateTime, "start times dont match");
-            $this->assertEquals($now, $req->endDateTime, "end times dont match");
+        $middleware->handle($request, function ($req) {});
+    }
+
+    public function testOverridesWork()
+    {
+        config()->set('dates.defaults', [
+            '/fleet/v1/assets/management/rented/dtcs/{startDateTime}/{endDateTime}' => [
+                'startDateTime' => 'yesterday',
+                'endDateTime' => 'now',
+            ],
+        ]);
+
+        $yesterday = Carbon::parse("yesterday")->format("Y-m-d h:i:s");
+        $now = Carbon::now()->format("Y-m-d h:i:s");
+        $request = $this->getRequest("/fleet/v1/assets/management/rented/dtcs/basjdhkasdsua/asdasdsad");
+        $middleware = new ParseDates;
+
+        $middleware->handle($request, function ($req) use ($yesterday, $now) {
+            $this->assertEquals($yesterday, $req->startDateTime);
+            $this->assertEquals($now, $req->endDateTime);
         });
     }
 }
