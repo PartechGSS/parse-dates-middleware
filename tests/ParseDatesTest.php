@@ -62,4 +62,17 @@ class ParseDatesTest extends \Orchestra\Testbench\TestCase
             $this->assertEquals($now, $req->endDateTime);
         }, "yesterday", "now");
     }
+
+    public function testOverrideFormat(): void
+    {
+        $yesterday = Carbon::parse("yesterday")->format("d/m G\h e");
+        $now = Carbon::now()->format("d/m G\h e");
+        $request = $this->getRequest("/fleet/v1/assets/management/rented/dtcs/yesterday/now");
+        $middleware = new ParseDates;
+
+        $middleware->handle($request, function ($req) use ($yesterday, $now) {
+            $this->assertEquals($yesterday, $req->startDateTime);
+            $this->assertEquals($now, $req->endDateTime);
+        }, null, null, "d/m G\h e");
+    }
 }
