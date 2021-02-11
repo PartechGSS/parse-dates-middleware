@@ -40,7 +40,7 @@ class ParseDates
      * @param string|null $endDefault
      * @return mixed
      */
-    public function handle($request, Closure $next, $startDefault = null, $endDefault = null)
+    public function handle($request, Closure $next, $startDefault = null, $endDefault = null, $format = "Y-m-d h:i:s")
     {
         $start = $this->parse($request->startDateTime, "startDateTime");
         $start = $this->getDefault($start, $startDefault, "startDateTime");
@@ -53,12 +53,12 @@ class ParseDates
 
         $request->route()->setParameter(
             "startDateTime",
-            $start->format("Y-m-d h:i:s")
+            $start->format($format)
         );
 
         $request->route()->setParameter(
             "endDateTime",
-            $end->format("Y-m-d h:i:s")
+            $end->format($format)
         );
 
         return $next($request);
